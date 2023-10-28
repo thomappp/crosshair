@@ -19,7 +19,13 @@ end
 
 function CROSSHAIR:DrawCrosshair()
 
+    local Ratio = GetAspectRatio()
+
     local Dot = self.Dot
+    local Left = self.Left
+    local Right = self.Right
+    local Top = self.Top
+    local Bottom = self.Bottom
     local Red = self.ColorR.Index
     local Green = self.ColorG.Index
     local Blue = self.ColorB.Index
@@ -28,12 +34,21 @@ function CROSSHAIR:DrawCrosshair()
     local Offset = self.Offsets.Table[self.Offsets.Index]
     local Thickness = self.Thicknesses.Table[self.Thicknesses.Index]
 
-    local Ratio = GetAspectRatio()
+    if Left then
+        DrawRect(0.5 + Offset + Width / 2, 0.5, Width, Thickness, Red, Green, Blue, Alpha)
+    end
 
-    DrawRect(0.5 - Offset - Width / 2, 0.5, Width, Thickness, Red, Green, Blue, Alpha)
-    DrawRect(0.5 + Offset + Width / 2, 0.5, Width, Thickness, Red, Green, Blue, Alpha)
-    DrawRect(0.5, 0.5 - (Offset * Ratio) - (Width * Ratio) / 2, Thickness / Ratio, Width * Ratio, Red, Green, Blue, Alpha)
-    DrawRect(0.5, 0.5 + (Offset * Ratio) + (Width * Ratio) / 2, Thickness / Ratio, Width * Ratio, Red, Green, Blue, Alpha)
+    if Right then
+        DrawRect(0.5 - Offset - Width / 2, 0.5, Width, Thickness, Red, Green, Blue, Alpha)
+    end
+    
+    if Top then
+        DrawRect(0.5, 0.5 - (Offset * Ratio) - (Width * Ratio) / 2, Thickness / Ratio, Width * Ratio, Red, Green, Blue, Alpha)
+    end
+
+    if Bottom then
+        DrawRect(0.5, 0.5 + (Offset * Ratio) + (Width * Ratio) / 2, Thickness / Ratio, Width * Ratio, Red, Green, Blue, Alpha)
+    end
 
     if Dot then
         DrawRect(0.5, 0.5, (Thickness / 2), (Thickness / 2) * Ratio, Red, Green, Blue, Alpha)

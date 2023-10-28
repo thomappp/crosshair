@@ -4,8 +4,8 @@ function CROSSHAIR:Thread()
 
     MainMenu = RageUI.CreateMenu("Réticule", "Modifer le reticule");
     ColorMenu = RageUI.CreateSubMenu(MainMenu, "Réticule", "Couleur predefinies");
+    FavMenu = RageUI.CreateSubMenu(MainMenu, "Réticule", "Preferences");
     CrossMenu = RageUI.CreateSubMenu(MainMenu, "Réticule", "Reticules predefinies");
-    CrosshairActive = true
 
     CreateThread(function()
         while true do
@@ -13,7 +13,7 @@ function CROSSHAIR:Thread()
             local PlayerWait = 5
 
             if IsAimCamActive() then
-                if CrosshairActive then
+                if self.Active then
                     if not self:IsCrosshairBasic() then
                         self:DrawCrosshair()
                         HideHudComponentThisFrame(14)
@@ -25,8 +25,8 @@ function CROSSHAIR:Thread()
 
             if RageUI.Visible(MainMenu) or
                 RageUI.Visible(ColorMenu) or
-                RageUI.Visible(CrossMenu) or
-                RageUI.Visible(RegisteredMenu) then
+                RageUI.Visible(FavMenu) or
+                RageUI.Visible(CrossMenu) then
                     
                 if self:IsCrosshairBasic() then
                     ShowHudComponentThisFrame(14)
@@ -42,15 +42,15 @@ function CROSSHAIR:Thread()
     function RageUI.PoolMenus:CreatorMenu()
         MainMenu:IsVisible(function(Items)
 
-            Items:CheckBox("Réticule actif", nil, CrosshairActive, { IsDisabled = false }, function(onSelected, IsChecked)
+            Items:CheckBox("Réticule actif", nil, CROSSHAIR.Active, { IsDisabled = false }, function(onSelected, IsChecked)
                 if (onSelected) then
-                    CrosshairActive = IsChecked
+                    CROSSHAIR.Active = IsChecked
                 end
             end)
 
-            Items:AddList("Réticule", CROSSHAIR.Cross.Table, CROSSHAIR.Cross.Index, "Chosir le réticule actif", { IsDisabled = false }, function(Index, Selected, onListChange, Active)
+            Items:AddList("Réticule", CROSSHAIR.CrossMode.Table, CROSSHAIR.CrossMode.Index, "Chosir le réticule actif", { IsDisabled = false }, function(Index, Selected, onListChange, Active)
                 if (onListChange) then
-                    CROSSHAIR.Cross.Index = Index
+                    CROSSHAIR.CrossMode.Index = Index
                 end
             end)
 
@@ -58,58 +58,40 @@ function CROSSHAIR:Thread()
 
             Items:AddSeparator("~y~Paramètres")
 
-            Items:CheckBox("Point", nil, CROSSHAIR.Dot, { IsDisabled = false }, function(onSelected, IsChecked)
+            Items:CheckBox("Point", nil, CROSSHAIR.Dot, { IsDisabled = CanUseButton }, function(onSelected, IsChecked)
                 if (onSelected) then
+                    if CanUseButton then return end
                     CROSSHAIR.Dot = IsChecked
                 end
             end)
 
-            Items:AddList("Epaisseur", CROSSHAIR.Thicknesses.Table, CROSSHAIR.Thicknesses.Index, "Modifier l'épaisseur du réticule", { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
-                if (onListChange) then
-                    CROSSHAIR.Thicknesses.Index = Index
-                end
-            end)
+            for i = 1, #CROSSHAIR.SetMenuButton do
+                local Set = CROSSHAIR.SetMenuButton[i]
 
-            Items:AddList("Largeur", CROSSHAIR.Widths.Table, CROSSHAIR.Widths.Index, "Modifier la largeur du réticule", { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
-                if (onListChange) then
-                    CROSSHAIR.Widths.Index = Index
-                end
-            end)
+                Items:AddList(Set.Name, CROSSHAIR[Set.Data].Table, CROSSHAIR[Set.Data].Index, Set.Description, { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
+                    if (onListChange) then
+                        CROSSHAIR[Set.Data].Index = Index
+                    end
+                end)
+            end
 
-            Items:AddList("Décalage", CROSSHAIR.Offsets.Table, CROSSHAIR.Offsets.Index, "Modifier le décalage du réticule", { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
-                if (onListChange) then
-                    CROSSHAIR.Offsets.Index = Index
-                end
-            end)
+            Items:AddButton("Préférences", nil, { IsDisabled = CanUseButton, RightLabel = "→" }, function(onSelected)
+            end, FavMenu)
 
             Items:AddButton("Réticules prédéfinies", "Liste des réticules prédéfinies", { IsDisabled = CanUseButton, RightLabel = "→" }, function(onSelected)
             end, CrossMenu)
 
             Items:AddSeparator("~y~Couleur")
 
-            Items:AddList("Rouge", CROSSHAIR.ColorR.Table, CROSSHAIR.ColorR.Index, "Modifier le spectre rouge du réticule", { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
-                if (onListChange) then
-                    CROSSHAIR.ColorR.Index = Index
-                end
-            end)
+            for i = 1, #CROSSHAIR.ColorMenuButton do
+                local Color = CROSSHAIR.ColorMenuButton[i]
 
-            Items:AddList("Vert", CROSSHAIR.ColorG.Table, CROSSHAIR.ColorG.Index, "Modifier le spectre vert du réticule", { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
-                if (onListChange) then
-                    CROSSHAIR.ColorG.Index = Index
-                end
-            end)
-
-            Items:AddList("Bleu", CROSSHAIR.ColorB.Table, CROSSHAIR.ColorB.Index, "Modifier le spectre bleu du réticule", { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
-                if (onListChange) then
-                    CROSSHAIR.ColorB.Index = Index
-                end
-            end)
-
-            Items:AddList("Opacité", CROSSHAIR.ColorA.Table, CROSSHAIR.ColorA.Index, "Modifier l'opacité du réticule", { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
-                if (onListChange) then
-                    CROSSHAIR.ColorA.Index = Index
-                end
-            end)
+                Items:AddList(Color.Name, CROSSHAIR[Color.Data].Table, CROSSHAIR[Color.Data].Index, Color.Description, { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
+                    if (onListChange) then
+                        CROSSHAIR[Color.Data].Index = Index
+                    end
+                end)
+            end
 
             Items:AddButton("Couleurs prédéfinies", "Liste des couleurs prédéfinies", { IsDisabled = CanUseButton, RightLabel = "→" }, function(onSelected)
             end, ColorMenu)
@@ -119,11 +101,11 @@ function CROSSHAIR:Thread()
 
         ColorMenu:IsVisible(function(Items)
 
-            for i = 1, #CROSSHAIR.Colors do
+            for i = 1, #CROSSHAIR.ColorsMenuButton do
 
-                local Color = CROSSHAIR.Colors[i]
+                local Color = CROSSHAIR.ColorsMenuButton[i]
 
-                Items:AddButton(Color.Name, nil, { IsDisabled = false }, function(onSelected)
+                Items:AddButton(Color.Name, nil, { IsDisabled = CanUseButton }, function(onSelected)
                     if (onSelected) then
                         CROSSHAIR.ColorR.Index = Color.R
                         CROSSHAIR.ColorG.Index = Color.G
@@ -137,16 +119,32 @@ function CROSSHAIR:Thread()
 
         CrossMenu:IsVisible(function(Items)
 
-            for i = 1, #CROSSHAIR.Preset do
+            for i = 1, #CROSSHAIR.PresetMenuButton do
 
-                local Cross = CROSSHAIR.Preset[i]
+                local Cross = CROSSHAIR.PresetMenuButton[i]
 
-                Items:AddButton(Cross.Name, nil, { IsDisabled = false }, function(onSelected)
+                Items:AddButton(Cross.Name, nil, { IsDisabled = CanUseButton }, function(onSelected)
                     if (onSelected) then
                         CROSSHAIR.Dot = Cross.Dot
                         CROSSHAIR.Thicknesses.Index = Cross.Thickness
                         CROSSHAIR.Widths.Index = Cross.Width
                         CROSSHAIR.Offsets.Index = Cross.Offset
+                    end
+                end)
+            end
+
+        end, function()
+        end)
+
+        FavMenu:IsVisible(function(Items)
+
+            for i = 1, #CROSSHAIR.FavMenuButton do
+
+                local Fav = CROSSHAIR.FavMenuButton[i]
+
+                Items:CheckBox(Fav.Name, Fav.Description, CROSSHAIR[Fav.Data], { IsDisabled = CanUseButton }, function(onSelected, IsChecked)
+                    if (onSelected) then
+                        CROSSHAIR[Fav.Data] = IsChecked
                     end
                 end)
             end
