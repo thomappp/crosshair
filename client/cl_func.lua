@@ -5,7 +5,7 @@ function CROSSHAIR:Text(text)
 end
 
 function CROSSHAIR:IsCrosshairBasic()
-    return self.Cross.Index == 1
+    return self.CrossMode.Index == 1
 end
 
 function CROSSHAIR:Load()
@@ -15,17 +15,24 @@ function CROSSHAIR:Load()
         table.insert(self.ColorB.Table, i)
         table.insert(self.ColorA.Table, i)
     end
+
+    for i = 1, #self.Thicknesses.Table do
+        table.insert(self.Thicknesses.Menu, i)
+    end
+
+    for i = 1, #self.Widths.Table do
+        table.insert(self.Widths.Menu, i)
+    end
+
+    for i = 1, #self.Offsets.Table do
+        table.insert(self.Offsets.Menu, i)
+    end
 end
 
 function CROSSHAIR:DrawCrosshair()
 
     local Ratio = GetAspectRatio()
 
-    local Dot = self.Dot
-    local Left = self.Left
-    local Right = self.Right
-    local Top = self.Top
-    local Bottom = self.Bottom
     local Red = self.ColorR.Index
     local Green = self.ColorG.Index
     local Blue = self.ColorB.Index
@@ -34,23 +41,23 @@ function CROSSHAIR:DrawCrosshair()
     local Offset = self.Offsets.Table[self.Offsets.Index]
     local Thickness = self.Thicknesses.Table[self.Thicknesses.Index]
 
-    if Left then
+    if self.Left then
         DrawRect(0.5 + Offset + Width / 2, 0.5, Width, Thickness, Red, Green, Blue, Alpha)
     end
 
-    if Right then
+    if self.Right then
         DrawRect(0.5 - Offset - Width / 2, 0.5, Width, Thickness, Red, Green, Blue, Alpha)
     end
     
-    if Top then
+    if self.Top then
         DrawRect(0.5, 0.5 - (Offset * Ratio) - (Width * Ratio) / 2, Thickness / Ratio, Width * Ratio, Red, Green, Blue, Alpha)
     end
 
-    if Bottom then
+    if self.Bottom then
         DrawRect(0.5, 0.5 + (Offset * Ratio) + (Width * Ratio) / 2, Thickness / Ratio, Width * Ratio, Red, Green, Blue, Alpha)
     end
 
-    if Dot then
+    if self.Dot then
         DrawRect(0.5, 0.5, (Thickness / 2), (Thickness / 2) * Ratio, Red, Green, Blue, Alpha)
     end
 end

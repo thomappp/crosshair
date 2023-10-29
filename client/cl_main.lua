@@ -58,17 +58,10 @@ function CROSSHAIR:Thread()
 
             Items:AddSeparator("~y~Paramètres")
 
-            Items:CheckBox("Point", nil, CROSSHAIR.Dot, { IsDisabled = CanUseButton }, function(onSelected, IsChecked)
-                if (onSelected) then
-                    if CanUseButton then return end
-                    CROSSHAIR.Dot = IsChecked
-                end
-            end)
+            for i = 1, #CROSSHAIR.SetMenuButtons do
+                local Set = CROSSHAIR.SetMenuButtons[i]
 
-            for i = 1, #CROSSHAIR.SetMenuButton do
-                local Set = CROSSHAIR.SetMenuButton[i]
-
-                Items:AddList(Set.Name, CROSSHAIR[Set.Data].Table, CROSSHAIR[Set.Data].Index, Set.Description, { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
+                Items:AddList(Set.Name, CROSSHAIR[Set.Data].Menu, CROSSHAIR[Set.Data].Index, Set.Description, { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
                     if (onListChange) then
                         CROSSHAIR[Set.Data].Index = Index
                     end
@@ -81,10 +74,10 @@ function CROSSHAIR:Thread()
             Items:AddButton("Réticules prédéfinies", "Liste des réticules prédéfinies", { IsDisabled = CanUseButton, RightLabel = "→" }, function(onSelected)
             end, CrossMenu)
 
-            Items:AddSeparator("~y~Couleur")
+            Items:AddSeparator("~y~Couleurs")
 
-            for i = 1, #CROSSHAIR.ColorMenuButton do
-                local Color = CROSSHAIR.ColorMenuButton[i]
+            for i = 1, #CROSSHAIR.ColorMenuButtons do
+                local Color = CROSSHAIR.ColorMenuButtons[i]
 
                 Items:AddList(Color.Name, CROSSHAIR[Color.Data].Table, CROSSHAIR[Color.Data].Index, Color.Description, { IsDisabled = CanUseButton }, function(Index, Selected, onListChange, Active)
                     if (onListChange) then
@@ -101,9 +94,9 @@ function CROSSHAIR:Thread()
 
         ColorMenu:IsVisible(function(Items)
 
-            for i = 1, #CROSSHAIR.ColorsMenuButton do
+            for i = 1, #CROSSHAIR.ColorsMenuButtons do
 
-                local Color = CROSSHAIR.ColorsMenuButton[i]
+                local Color = CROSSHAIR.ColorsMenuButtons[i]
 
                 Items:AddButton(Color.Name, nil, { IsDisabled = CanUseButton }, function(onSelected)
                     if (onSelected) then
@@ -119,9 +112,9 @@ function CROSSHAIR:Thread()
 
         CrossMenu:IsVisible(function(Items)
 
-            for i = 1, #CROSSHAIR.PresetMenuButton do
+            for i = 1, #CROSSHAIR.PresetMenuButtons do
 
-                local Cross = CROSSHAIR.PresetMenuButton[i]
+                local Cross = CROSSHAIR.PresetMenuButtons[i]
 
                 Items:AddButton(Cross.Name, nil, { IsDisabled = CanUseButton }, function(onSelected)
                     if (onSelected) then
@@ -138,9 +131,16 @@ function CROSSHAIR:Thread()
 
         FavMenu:IsVisible(function(Items)
 
-            for i = 1, #CROSSHAIR.FavMenuButton do
+            Items:CheckBox("Point", "Point central", CROSSHAIR.Dot, { IsDisabled = CanUseButton }, function(onSelected, IsChecked)
+                if (onSelected) then
+                    if CanUseButton then return end
+                    CROSSHAIR.Dot = IsChecked
+                end
+            end)
 
-                local Fav = CROSSHAIR.FavMenuButton[i]
+            for i = 1, #CROSSHAIR.FavMenuButtons do
+
+                local Fav = CROSSHAIR.FavMenuButtons[i]
 
                 Items:CheckBox(Fav.Name, Fav.Description, CROSSHAIR[Fav.Data], { IsDisabled = CanUseButton }, function(onSelected, IsChecked)
                     if (onSelected) then
